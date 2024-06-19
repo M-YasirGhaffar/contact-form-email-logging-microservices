@@ -10,9 +10,8 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-// Function to validate email using Hunter API
 async function validateEmail(email) {
-    const apiKey = process.env.HUNTER_API_KEY; // Add your API key in .env file
+    const apiKey = process.env.HUNTER_API_KEY;
     const url = `https://api.hunter.io/v2/email-verifier?email=${email}&api_key=${apiKey}`;
 
     try {
@@ -25,9 +24,8 @@ async function validateEmail(email) {
     }
 }
 
-// Function to save form submission to the database
-async function saveFormSubmission(email, data, ipAddress, userAgent, referer, headers) {
-    const newFormSubmission = new FormSubmission({ email, data, ipAddress, userAgent, referer, headers });
+async function saveFormSubmission(email, data, ipAddress, userAgent, referer, headers, validEmail) {
+    const newFormSubmission = new FormSubmission({ email, data, ipAddress, userAgent, referer, headers, validEmail });
 
     try {
         await newFormSubmission.save();
@@ -39,7 +37,6 @@ async function saveFormSubmission(email, data, ipAddress, userAgent, referer, he
     }
 }
 
-// Function to send admin email
 async function sendAdminEmail(email, data, ipAddress, userAgent, referer, headers) {
     const mailOptions = {
         from: process.env.EMAIL_USER,
@@ -58,7 +55,6 @@ async function sendAdminEmail(email, data, ipAddress, userAgent, referer, header
     }
 }
 
-// Function to send auto-reply email
 async function sendAutoReply(email) {
     const autoReplyOptions = {
         from: process.env.EMAIL_USER,
@@ -85,23 +81,24 @@ exports.submitForm = async (req, res) => {
     const headers = req.headers;
 
     const isEmailValid = await validateEmail(email);
+
+    const saveResult = await saveFormSubmission(email, data, ipAddress, userAgent, referer, headers, isEmailValid);
+
     if (!isEmailValid) {
-        return res.status(400).json({ message: 'Invalid email address' });
+        return res.status(400).json({
+            message: 'Invalid email address',
+            email,
+            data
+        });
     }
 
-    // Save the form submission to the database
-    const saveResult = await saveFormSubmission(email, data, ipAddress, userAgent, referer, headers);
-
-    // Send emails independently
     const adminEmailResult = await sendAdminEmail(email, data, ipAddress, userAgent, referer, headers);
     const autoReplyResult = await sendAutoReply(email);
 
-    // Log the results
     console.log('Save Result:', saveResult);
     console.log('Admin Email Result:', adminEmailResult);
     console.log('Auto-reply Email Result:', autoReplyResult);
 
-    // Respond to the user based on the auto-reply email status
     if (autoReplyResult.success) {
         res.status(200).json({
             message: 'Form submitted and auto-reply email sent successfully',
@@ -116,7 +113,6 @@ exports.submitForm = async (req, res) => {
         });
     }
 
-    // Log details for debugging purposes
     if (!saveResult.success) {
         console.error('Error saving form submission:', saveResult.error);
     }

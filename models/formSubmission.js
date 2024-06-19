@@ -7,6 +7,7 @@ const formSubmissionSchema = new mongoose.Schema({
     userAgent: { type: String, required: true },
     referer: { type: String },
     headers: { type: mongoose.Schema.Types.Mixed },
+    validEmail: { type: Boolean, required: true },
     createdAt: { type: Date, default: Date.now }
 });
 
