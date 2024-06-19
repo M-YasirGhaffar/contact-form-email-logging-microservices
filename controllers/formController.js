@@ -1,5 +1,4 @@
 const axios = require("axios");
-const FormSubmission = require("../models/formSubmission");
 const nodemailer = require("nodemailer");
 
 const transporter = nodemailer.createTransport({
@@ -9,35 +8,6 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS,
   },
 });
-
-async function saveFormSubmission(
-  email,
-  data,
-  ipAddress,
-  userAgent,
-  referer,
-  headers,
-  validEmail
-) {
-  const newFormSubmission = new FormSubmission({
-    email,
-    data,
-    ipAddress,
-    userAgent,
-    referer,
-    headers,
-    validEmail,
-  });
-
-  try {
-    await newFormSubmission.save();
-    console.log("Form submission saved successfully");
-    return { success: true };
-  } catch (err) {
-    console.error("Error saving form submission:", err);
-    return { success: false, error: err };
-  }
-}
 
 async function sendAdminEmail(
   email,
@@ -93,7 +63,6 @@ exports.submitForm = async (req, res) => {
   const referer = req.get("Referer") || req.get("Referrer");
   const headers = req.headers;
 
-  // Call the Email Validation Service
   let isEmailValid;
   try {
     const response = await axios.post("http://localhost:3001/validate-email", {
@@ -105,15 +74,13 @@ exports.submitForm = async (req, res) => {
     return res.status(500).json({ message: "Error validating email" });
   }
 
-  const saveResult = await saveFormSubmission(
-    email,
-    data,
-    ipAddress,
-    userAgent,
-    referer,
-    headers,
-    isEmailValid
-  );
+  try {
+    const response = await axios.post("http://localhost:3002/log-data", {email, ...data, ipAddress, userAgent, referer, headers, isEmailValid});
+     console.log("Save Result:", response.success);
+    } catch (error) {
+    console.error("Error validating email:", error);
+    return res.status(500).json({ message: "Error logging data into mongodb database" });
+  }
 
   if (!isEmailValid) {
     return res.status(400).json({
@@ -133,7 +100,6 @@ exports.submitForm = async (req, res) => {
   );
   const autoReplyResult = await sendAutoReply(email);
 
-  console.log("Save Result:", saveResult);
   console.log("Admin Email Result:", adminEmailResult);
   console.log("Auto-reply Email Result:", autoReplyResult);
 

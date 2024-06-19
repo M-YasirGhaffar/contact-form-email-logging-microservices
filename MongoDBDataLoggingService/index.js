@@ -39,7 +39,7 @@ app.post('/log-data', async (req, res) => {
     
     try {
         await formSubmission.save();
-        res.json({ message: 'Data logged successfully' });
+        res.json({ message: 'Data logged successfully', success: true});
     } catch (error) {
         console.error('Error logging data:', error);
         res.status(500).json({ message: 'Error logging data' });
