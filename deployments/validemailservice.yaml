@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: validemailservice-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: validemailservice
+  template:
+    metadata:
+      labels:
+        app: validemailservice
+    spec:
+      containers:
+      - name: validemailservice
+        image: msaregistry.azurecr.io/validemailservice:latest
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: validemailservice-service
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+  selector:
+    app: validemailservice
