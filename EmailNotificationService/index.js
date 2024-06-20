@@ -45,8 +45,8 @@ app.post('/send-auto-reply', async (req, res) => {
   const autoReplyOptions = {
     from: process.env.EMAIL_USER,
     to: email,
-    subject: 'Thank you for your submission',
-    text: `Hi, thank you for reaching out to us. We have received your message and will get back to you soon.`,
+    subject: 'Thank you for contacting!',
+    text: `Hi, thank you for reaching out. Your message was received. Will get back to you soon.\nNote: This is an auto-generated email. If you didn't contact us through contact form then someone else must have. In that case just ignore this email.\n\nBest Regards,\n`,
   };
 
   try {
