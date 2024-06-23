@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: emailnotificationservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: emailnotificationservice
+  template:
+    metadata:
+      labels:
+        app: emailnotificationservice
+    spec:
+      containers:
+      - name: emailnotificationservice
+        image: customformregistry.azurecr.io/emailnotificationservice-image:v1
+        ports:
+        - containerPort: 3003

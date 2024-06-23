@@ -1,3 +1,4 @@
+require('dotenv').config();
 const axios = require("axios");
 
 exports.submitForm = async (req, res) => {
@@ -10,19 +11,19 @@ exports.submitForm = async (req, res) => {
   // Validate Email
   let isEmailValid;
   try {
-    const response = await axios.post("http://localhost:3001/validate-email", {
+    const response = await axios.post(`${process.env.VALIDEMAILSERVICE_BASE_URL}/validate-email`, {
       email,
     });
     isEmailValid = response.data.valid;
   } catch (error) {
     console.error("Error validating email:", error);
-    return res.status(500).json({ message: "Error validating email" });
+    return res.status(500).json({ message: "Error validating email at " + process.env.VALIDEMAILSERVICE_BASE_URL });
   }
 
   // Log Data
   let logDataResult;
   try {
-    logDataResult = await axios.post("http://localhost:3002/log-data", {
+    logDataResult = await axios.post(`${process.env.MONGODBDATALOGGINGSERVICE_BASE_URL}/log-data`, {
       email,
       data,
       ipAddress,
@@ -49,7 +50,7 @@ exports.submitForm = async (req, res) => {
   // Send Admin Email
   let adminEmailResult;
   try {
-    adminEmailResult = await axios.post("http://localhost:3003/send-admin-email", {
+    adminEmailResult = await axios.post(`${process.env.EMAILNOTIFICATIONSERVICE_BASE_URL}/send-admin-email`, {
       email,
       data,
       ipAddress,
@@ -65,7 +66,7 @@ exports.submitForm = async (req, res) => {
   // Send Auto-Reply Email
   let autoReplyResult;
   try {
-    autoReplyResult = await axios.post("http://localhost:3003/send-auto-reply", { email });
+    autoReplyResult = await axios.post(`${process.env.EMAILNOTIFICATIONSERVICE_BASE_URL}/send-auto-reply`, { email });
   } catch (error) {
     console.error("Error sending auto-reply email:", error);
     autoReplyResult = { data: { success: false, error: error.message } };

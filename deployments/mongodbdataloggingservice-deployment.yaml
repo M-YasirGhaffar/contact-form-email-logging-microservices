@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodbdataloggingservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodbdataloggingservice
+  template:
+    metadata:
+      labels:
+        app: mongodbdataloggingservice
+    spec:
+      containers:
+      - name: mongodbdataloggingservice
+        image: customformregistry.azurecr.io/mongodbdataloggingservice-image:v1
+        ports:
+        - containerPort: 3002
