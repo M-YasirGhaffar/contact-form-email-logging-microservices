@@ -2,12 +2,14 @@ require('dotenv').config();
 
 const express = require('express');
 const axios = require('axios');
+const cors = require('cors');
 
 const app = express();
 
 const PORT = process.env.PORT || 3001;
 
 app.use(express.json());
+app.use(cors());
 
 app.get('/', (req, res) => {
     res.json({ message: 'Hello, world! This is Email Verification Service.' });
