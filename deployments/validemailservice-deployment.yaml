@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: validemailservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: validemailservice
+  template:
+    metadata:
+      labels:
+        app: validemailservice
+    spec:
+      containers:
+      - name: validemailservice
+        image: customformregistry.azurecr.io/validemailservice-image:v1
+        ports:
+        - containerPort: 3001

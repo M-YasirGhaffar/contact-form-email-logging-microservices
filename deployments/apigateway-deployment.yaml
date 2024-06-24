@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apigateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: apigateway
+  template:
+    metadata:
+      labels:
+        app: apigateway
+    spec:
+      containers:
+      - name: apigateway
+        image: customformregistry.azurecr.io/apigateway-image:v1
+        ports:
+        - containerPort: 3000
+        env:
+        - name: VALIDEMAILSERVICE_BASE_URL
+          value: "http://validemailservice:3001"
+        - name: MONGODBDATALOGGINGSERVICE_BASE_URL
+          value: "http://mongodbdataloggingservice:3002"
+        - name: EMAILNOTIFICATIONSERVICE_BASE_URL
+          value: "http://emailnotificationservice:3003"
